@@ -3,23 +3,80 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Support — Stocheo</title>
+  <title>Documentation — Stocheo</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <nav>
     <a href="/">Stocheo</a>
-    <a href="/support.html">Support</a>
+    <a href="/support.html">Docs</a>
     <a href="/privacy.html">Privacy</a>
     <a href="/terms.html">Terms</a>
   </nav>
 
-  <h1>Support</h1>
+  <h1>Function Reference</h1>
 
-  <p>For help with the Stocheo add-on or to report an issue, please contact us through the <a href="https://workspace.google.com/marketplace">Google Workspace Marketplace</a> listing.</p>
+  <h2>RANDSEED(seed, [index1], [index2], ...)</h2>
+
+  <p>Returns a deterministic random number in [0, 1) based on a seed and optional position indices. Drop-in replacement for <code>RAND()</code> that is reproducible: same inputs always produce the same output.</p>
+
+  <h3>Parameters</h3>
+  <ul>
+    <li><code>seed</code> — The trial seed (number or string). Typically a cell reference, e.g. <code>Parameters!$A$1</code>.</li>
+    <li><code>index1, index2, ...</code> — Optional position indices (e.g. <code>ROW()</code>, <code>COLUMN()</code>). Use these to generate unique values per cell from a single seed.</li>
+  </ul>
+
+  <h3>Returns</h3>
+  <p>A float in [0, 1). Same inputs always produce the same output.</p>
+
+  <h3>Examples</h3>
+  <ul>
+    <li><code>=RANDSEED(42)</code> — single deterministic value</li>
+    <li><code>=RANDSEED($A$1, ROW())</code> — unique per row, reproducible per seed</li>
+    <li><code>=RANDSEED($A$1, ROW(), COLUMN())</code> — unique per cell in a 2D range</li>
+  </ul>
+
+  <h3>Usage with distributions</h3>
+  <p>Wrap the output in native Sheets distribution functions to shape it into any distribution:</p>
+  <ul>
+    <li><code>=NORMINV(RANDSEED($A$1, ROW()), mean, stdev)</code> — normal distribution</li>
+    <li><code>=LOGNORM.INV(RANDSEED($A$1, ROW()), mu, sigma)</code> — lognormal</li>
+    <li><code>=BETA.INV(RANDSEED($A$1, ROW()), alpha, beta)</code> — beta distribution</li>
+  </ul>
+
+  <h2>RANDSEEDARRAY(seed, rows, [cols], [startRow], [startCol])</h2>
+
+  <p>Returns a 2D array of deterministic random numbers in [0, 1). Single-call alternative to filling a range with individual RANDSEED formulas. Place in one cell and the result spills across the specified rows and columns.</p>
+
+  <h3>Parameters</h3>
+  <ul>
+    <li><code>seed</code> — The trial seed (number or string).</li>
+    <li><code>rows</code> — Number of rows to generate.</li>
+    <li><code>cols</code> — Number of columns (default 1).</li>
+    <li><code>startRow</code> — Starting row index (default 1). Values match what <code>ROW()</code> would return for row 1.</li>
+    <li><code>startCol</code> — Starting column index (default 1). Values match what <code>COLUMN()</code> would return for column A.</li>
+  </ul>
+
+  <h3>Returns</h3>
+  <p>A 2D array of floats in [0, 1). Each cell's value is identical to what <code>RANDSEED(seed, startRow + r, startCol + c)</code> would produce.</p>
+
+  <h3>Examples</h3>
+  <ul>
+    <li><code>=RANDSEEDARRAY($A$1, 100)</code> — 100 random values in a column</li>
+    <li><code>=RANDSEEDARRAY($A$1, 50, 3)</code> — 50 rows by 3 columns</li>
+    <li><code>=RANDSEEDARRAY($A$1, 10, 5, 1, 1)</code> — explicit start indices</li>
+  </ul>
+
+  <h2>Key Concepts</h2>
+
+  <h3>Reproducibility</h3>
+  <p>Every output is fully determined by its inputs. Change the seed to get a different trial; keep it the same to reproduce results exactly. This makes it possible to compare model runs, share results, and debug edge cases.</p>
+
+  <h3>Independence</h3>
+  <p>Each cell's value depends only on the seed and its indices — not on evaluation order or neighboring cells. Insert or delete rows without affecting other values.</p>
 
   <footer>
-    <p>&copy; 2026 Stocheo. <a href="/privacy.html">Privacy Policy</a> &middot; <a href="/terms.html">Terms of Service</a> &middot; <a href="/support.html">Support</a></p>
+    <p>&copy; 2026 Stocheo. <a href="/privacy.html">Privacy Policy</a> &middot; <a href="/terms.html">Terms of Service</a> &middot; <a href="/support.html">Docs</a></p>
   </footer>
 </body>
 </html>
