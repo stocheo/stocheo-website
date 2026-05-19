@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Stocheo</title>
+  <title>Stocheo — Reproducible Random Numbers for Google Sheets</title>
+  <meta name="description" content="Stocheo is a Google Sheets add-on that provides seeded, reproducible random number generation. Same inputs, same outputs — every time.">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -11,66 +12,279 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: #0a0e17;
       color: #e0e6f0;
-      height: 100vh;
-      overflow: hidden;
+      line-height: 1.6;
     }
 
     canvas { position: fixed; top: 0; left: 0; z-index: 0; }
 
-    .content {
+    .page {
       position: relative;
       z-index: 1;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1.5rem 2rem;
+      font-size: 0.9rem;
+    }
+
+    nav .brand {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #e0e6f0;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+
+    nav a {
+      color: #8090b0;
+      text-decoration: none;
+    }
+
+    nav a:hover { color: #c0d0f0; }
+
+    .hero {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
       text-align: center;
-      padding: 2rem;
+      padding: 6rem 2rem 4rem;
+      max-width: 720px;
+      margin: 0 auto;
     }
 
-    h1 {
-      font-size: 3rem;
+    .hero h1 {
+      font-size: 2.8rem;
       font-weight: 300;
-      letter-spacing: 0.3em;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero .subtitle {
+      font-size: 1.3rem;
+      color: #8090b0;
+      margin-bottom: 2rem;
+      max-width: 560px;
+    }
+
+    .hero .description {
+      font-size: 1.05rem;
+      color: #a0b0c8;
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+    }
+
+    .cta {
+      display: inline-block;
+      background: #2a6fff;
+      color: #fff;
+      padding: 0.75rem 2rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .cta:hover { background: #1a5fe8; }
+
+    section {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    section h2 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      color: #c8d8f0;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .features { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2rem; }
+    }
+
+    .feature {
+      background: rgba(20, 30, 50, 0.6);
+      border: 1px solid rgba(60, 80, 120, 0.3);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .feature h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #d0e0ff;
+    }
+
+    .feature p {
+      font-size: 0.9rem;
+      color: #8898b8;
+    }
+
+    .example {
+      background: rgba(20, 30, 50, 0.6);
+      border: 1px solid rgba(60, 80, 120, 0.3);
+      border-radius: 8px;
+      padding: 1.5rem 2rem;
+      margin-top: 1.5rem;
+    }
+
+    .example code {
+      display: block;
+      font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+      color: #a8c8ff;
+      margin-bottom: 0.5rem;
+      white-space: pre-wrap;
+    }
+
+    .example code:last-child { margin-bottom: 0; }
+
+    .example .comment {
+      color: #556680;
+    }
+
+    .how-it-works p {
+      color: #a0b0c8;
       margin-bottom: 1rem;
     }
 
-    .tagline {
-      font-size: 1.1rem;
-      color: #667;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
+    .how-it-works ul {
+      list-style: none;
+      padding: 0;
     }
 
-    footer {
-      position: fixed;
-      bottom: 1.5rem;
+    .how-it-works li {
+      color: #a0b0c8;
+      padding: 0.4rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .how-it-works li::before {
+      content: "\2022";
+      color: #2a6fff;
+      position: absolute;
       left: 0;
-      right: 0;
-      text-align: center;
-      z-index: 1;
+    }
+
+    .scope-explanation p {
+      font-size: 0.95rem;
+      color: #a0b0c8;
+      margin-bottom: 0.75rem;
+    }
+
+    .scope-explanation p:last-child { margin-bottom: 0; }
+
+    footer {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem;
+      border-top: 1px solid rgba(60, 80, 120, 0.3);
       font-size: 0.8rem;
       color: #445;
     }
 
-    footer a { color: #556; text-decoration: none; margin: 0 0.5rem; }
+    footer a { color: #556680; text-decoration: none; }
     footer a:hover { color: #88a; }
+    footer .links { display: flex; gap: 1rem; margin-bottom: 0.75rem; }
+    footer .trademark { color: #445; font-size: 0.75rem; }
   </style>
 </head>
 <body>
   <canvas id="bg"></canvas>
-  <div class="content">
-    <h1>Stocheo</h1>
-    <p class="tagline">Reproducible random numbers for Google Sheets™</p>
+  <div class="page">
+    <nav>
+      <a href="/" class="brand">Stocheo</a>
+      <a href="/support.html">Docs</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+    </nav>
+
+    <div class="hero">
+      <h1>Stocheo</h1>
+      <p class="subtitle">Reproducible random numbers for Google Sheets&#8482;</p>
+      <p class="description">A Google Sheets&#8482; add-on that provides seeded random number generation. Same seed, same results &mdash; every time. Build models you can reproduce, share, and verify.</p>
+    </div>
+
+    <section>
+      <h2>Why Stocheo?</h2>
+      <div class="features">
+        <div class="feature">
+          <h3>Reproducible</h3>
+          <p>Every output is determined by its inputs. Use the same seed to get the same results, every time. Share spreadsheets with confidence that others will see identical values.</p>
+        </div>
+        <div class="feature">
+          <h3>Independent</h3>
+          <p>Each cell depends only on the seed and its indices. Insert or delete rows without affecting other values. No hidden serial dependencies.</p>
+        </div>
+        <div class="feature">
+          <h3>Native</h3>
+          <p>Works with the Google Sheets&#8482; functions you already know. Wrap RANDSEED in NORMINV, LOGNORM.INV, or BETA.INV to generate any distribution.</p>
+        </div>
+        <div class="feature">
+          <h3>Simple</h3>
+          <p>One function to learn. Drop it in wherever you use RAND() today, add a seed reference, and your model becomes deterministic.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Usage</h2>
+      <div class="example">
+        <code><span class="comment">// Single reproducible random value</span></code>
+        <code>=RANDSEED(42)</code>
+        <code></code>
+        <code><span class="comment">// Unique per row, reproducible per seed</span></code>
+        <code>=RANDSEED($A$1, ROW())</code>
+        <code></code>
+        <code><span class="comment">// Unique per cell in a 2D range</span></code>
+        <code>=RANDSEED($A$1, ROW(), COLUMN())</code>
+        <code></code>
+        <code><span class="comment">// Normal distribution via native Sheets function</span></code>
+        <code>=NORMINV(RANDSEED($A$1, ROW()), mean, stdev)</code>
+      </div>
+    </section>
+
+    <section class="how-it-works">
+      <h2>How It Works</h2>
+      <p>Stocheo provides custom spreadsheet functions that generate random numbers from a seed value. Unlike the built-in RAND() function &mdash; which produces different values on every recalculation &mdash; Stocheo functions are deterministic:</p>
+      <ul>
+        <li><strong>RANDSEED(seed, ...indices)</strong> &mdash; returns a single random number in [0,&nbsp;1) determined by the seed and optional position indices.</li>
+        <li><strong>RANDSEEDARRAY(seed, rows, cols)</strong> &mdash; returns an array of random numbers, useful for filling ranges with a single formula.</li>
+      </ul>
+      <p>Change the seed to generate a different set of random values. Keep the seed the same to reproduce your results exactly. This makes it possible to compare scenarios, verify models, and share reproducible analyses.</p>
+    </section>
+
+    <section class="scope-explanation">
+      <h2>Permissions &amp; Privacy</h2>
+      <p>Stocheo operates entirely within your current spreadsheet. It reads the seed and index values you pass to its custom functions and returns computed random numbers. It does not access other files in your Google Drive, send data to external servers, or store any of your information.</p>
+      <p>The add-on uses only the <em>current spreadsheet</em> scope so that its custom functions can read input values and return results within your sheet. No other permissions are requested. See our <a href="/privacy.html">Privacy Policy</a> for full details.</p>
+    </section>
+
+    <footer>
+      <div class="links">
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms of Service</a>
+        <a href="/support.html">Docs</a>
+      </div>
+      <span>&copy; 2026 Stocheo</span>
+      <p class="trademark">Google Sheets and Google Drive are trademarks of Google LLC.</p>
+    </footer>
   </div>
-  <footer>
-    <a href="/privacy.html">Privacy Policy</a>
-    <a href="/terms.html">Terms of Service</a>
-    <a href="/support.html">Support</a>
-    <br>&copy; 2026 Stocheo
-  </footer>
 
   <script>
     const canvas = document.getElementById('bg');
@@ -106,7 +320,6 @@
     function draw() {
       ctx.clearRect(0, 0, w, h);
 
-      // grid
       ctx.strokeStyle = 'rgba(40, 50, 70, 0.3)';
       ctx.lineWidth = 0.5;
       const step = 60;
@@ -117,7 +330,6 @@
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
       }
 
-      // lines
       for (const line of lines) {
         ctx.beginPath();
         ctx.strokeStyle = line.color;
@@ -131,7 +343,6 @@
         }
         ctx.stroke();
 
-        // glow
         ctx.strokeStyle = line.color.replace(/[\d.]+\)$/, '0.03)');
         ctx.lineWidth = 6;
         ctx.beginPath();
